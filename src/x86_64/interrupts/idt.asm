@@ -118,7 +118,7 @@ irq_stub 15
 exception_handler:
 	pushregs
 	mov rdi, rsp
-	call handle_exception
+	;call handle_exception
 	popregs
 	add rsp, 16
 	iretq

@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include "kernel/vga.h"
+#include "kernel/io.h"
 
 const static size_t NUM_COLS = 80;
 const static size_t NUM_ROWS = 25;
@@ -54,6 +55,23 @@ void print_clear() {
 void print_char(char character) {
     if (character == '\n') {
         print_newline();
+        return;
+    }
+
+    if (character == '\b') {
+        if (col > 0) {
+            col--; 
+        } else if (row > 0) {
+            row--;    
+            col = NUM_COLS - 1; 
+        } else {
+            return; 
+        }
+
+        buffer[col + NUM_COLS * row] = (struct Char) {
+            character: (uint8_t) ' ',
+            color: color
+        };
         return;
     }
 
@@ -159,5 +177,28 @@ void va_kprintf (const char* format, va_list args) {
         } else {
             print_char(format[i]);
         }
+        update_cursor(row, col);
     }
+}
+
+void update_cursor(size_t row, size_t col) {
+    uint16_t position = (row+1) * NUM_COLS + col;
+
+    outportb(0x3D4, 0x0F);  // Send low byte
+    outportb(0x3D5, (uint8_t)(position & 0xFF));
+    outportb(0x3D4, 0x0E);  // Send high byte
+    outportb(0x3D5, (uint8_t)((position >> 8) & 0xFF));
+}
+
+void enable_cursor(uint8_t cursor_start, uint8_t cursor_end) {
+    outportb(0x3D4, 0x0A);
+    outportb(0x3D5, (inportb(0x3D5) & 0xC0) | cursor_start);
+
+    outportb(0x3D4, 0x0B);
+    outportb(0x3D5, (inportb(0x3D5) & 0xE0) | cursor_end);
+}
+
+void disable_cursor() {
+    outportb(0x3D4, 0x0A);
+    outportb(0x3D5, 0x20);
 }

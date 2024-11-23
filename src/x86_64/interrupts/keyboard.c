@@ -23,11 +23,11 @@ void keyboard_handler(struct InterruptStackFrame *frame) {
         return;
     }
 
-    kprintf("Scancode: %d\n", scan_code);
+    // kprintf("Scancode: %d\n", scan_code);
 
     char key = scancode_to_ascii(scan_code);
 
     if (key) {
-        kprintf("ASCII: %c\n", key);
+        kprintf("%c", key);
     }
 }

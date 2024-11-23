@@ -26,3 +26,6 @@ enum {
 void print_clear();
 void print_set_color(uint8_t foreground, uint8_t background);
 void va_kprintf(const char* format, va_list args);
+void update_cursor(size_t row, size_t col);
+void enable_cursor(uint8_t cursor_start, uint8_t cursor_end);
+void disable_cursor();
